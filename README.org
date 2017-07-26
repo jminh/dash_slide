@@ -1,0 +1,235 @@
+
+* dash: Make interactive website in pure Python (on top of flask, react)
+
+** Outline
+
+Make interactive website in pure Python (on top of flask, react)
+
+Target audience
+
+Anyone who wants to build a website without
+touching javascript
+
+You can create an interacitve website
+even you have no idea about javascript.
+
+** Scenario
+
+We all know python is sutitable for
+data analysis(pandas), numerial computing(numpy, scipy).
+
+For data exploring and visualization,
+you are like to use jupyter notebook to perform the analysis.
+
+When you want to publish your research over the internet,
+you would like to privide the same interacvitiy for the website.
+
+What would you do?
+
+jupyter notebook
+[[https://github.com/jupyter/dashboards][jupyter dashboard]]
+
+Flexx [[https://www.youtube.com/watch?v=kIPL3N2Xk_c][Running Python Apps in the Browser | Almar Klein | SciPy 2016]]
+
+** Build from scratch
+
+data analysis, numerial computing
+- numpy, pandas
+
+python backend
+- flask, django
+
+front end
+- plotly, d3, nvd3, ...
+- react.js, vue.js, angular.js, ...
+
+David Baumgold - Prototyping New APIs with Flask - PyCon 2016
+https://www.youtube.com/watch?v=6RdZNiyISVU
+
+** Web technology
+
+- html
+- css
+- javascript
+
+Model web tech (modulize, ...)
+
+- javascript typescript, ...
+- modulize
+- bundle
+- es6, es7, ...
+- css scss, ...
+
+** Alternative options
+
+https://github.com/zoofIO/flexx
+
+https://github.com/jwkvam/bowtie
+
+https://github.com/stitchfix/pyxley
+
+https://github.com/adamhajari/spyre
+
+...
+
+dash
+https://github.com/plotly/dash
+Interactive, reactive web apps in pure python
+
+** Dash
+
+dash - MIT license
+
+- html
+  + a basic understanding of html (h1, h2, ,div, a, p, ...)
+- python
+
+
+There is no need to write html code,
+all is wriiten in pure python,
+
+- no html, javascript required
+
+Build the html page using its defalut compoments.
+(The idea is like react, we build the dom through javascript.)
+
+*** import compoments
+
+#+BEGIN_SRC python
+import dash_core_components as dcc
+import dash_html_components as html
+#+END_SRC
+
+core compoments
+
++ html.H1
++ html.Div
+
+example table
+
+#+BEGIN_SRC python
+def _generate_html_table(dataframe):
+    max_rows = 5000
+
+    return html.Table(
+        # Header
+        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+
+        # Body
+        [html.Tr([
+            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+        ]) for i in range(min(len(dataframe), max_rows))]
+    )
+#+END_SRC
+
+higher compoments
+
++ dcc.Dropdown
++ dcc.Markdown
++ dcc.Graph
++ from dash_table_component import Table
+
+#+BEGIN_SRC python
+from dash.dependencies import Input, Output
+#+END_SRC
+
+interactivity
+decarator, callback
+
+input component
+output component
+
+*** example
+
+https://github.com/plotly/dash-hello-world
+
+#+BEGIN_SRC python
+import dash
+from dash.dependencies import Input, Output
+import dash_core_components as dcc
+import dash_html_components as html
+
+import plotly.graph_objs as go
+
+import pandas as pd
+import shark
+
+
+app = dash.Dash('Hello World')
+
+app.layout = html.Div([
+    html.Br(),
+    html.Div(children='Data Source: {}'),
+    html.Br(),
+    dcc.Dropdown(
+        id='my-dropdown',
+        options= shark.dropdown_stdf_option(),
+        value='demo.csv'
+    ),
+    html.Br(),
+    html.Div(id='show-selected-stdf'),
+    html.Br(),
+
+    html.H3(children='Chain Fail Rate Diagram'),
+    dcc.Graph(id='fig-chain-fail-rate'),
+
+    html.H3(children='Scan Fail Rate'),
+    dcc.Graph(id='fig-scan-fail-rate-all'),
+
+    html.H3(children='Chain+Scan integrate Fail Rate Diagram'),
+    dcc.Graph(id='fig-chain-scan'),
+
+    html.H3(children='VCCMIN distribution'),
+    dcc.Graph(id='fig-vccmin'),
+
+], style={'width': '1500'})
+
+@app.callback(Output('show-selected-stdf', 'children'), [Input('my-dropdown', 'value')])
+def show_selected_stdf_file(selected_dropdown_value):
+    import os
+    df = pd.read_csv(shark.dropdown_stdf()[selected_dropdown_value])
+    return os.path.basename(shark.dropdown_stdf()[selected_dropdown_value])
+
+@app.callback(Output('fig-scan-fail-rate-all', 'figure'), [Input('my-dropdown', 'value')])
+def update_chain_fail_rate(selected_dropdown_value):
+
+    df = pd.read_csv(shark.dropdown_stdf()[selected_dropdown_value])
+
+    fig = plot_fig_scan_fail_rate_all(df)
+    return fig
+#+END_SRC
+
+** SPA
+
+https://plot.ly/dash/urls
+
+#+BEGIN_SRC python
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+
+dash_core_components.Location 
+dash_core_components.Link
+#+END_SRC
+
+** Extesnion
+
+10-15 javascript lines
+
+convert a react.js compoment into
+a dash compatible componet
+
+example
+https://github.com/plotly/dash-core-components/blob/master/src/components/Slider.react.js
+
+*** react 101
+
+https://academy.plot.ly/react/1-introduction/
+
+** More
+
+https://plot.ly/products/dash/
+https://github.com/plotly/dash
+
+Dash - A New Framework for Building User Interfaces for Technical Computing | SciPy 2017 | Chris Par
+https://www.youtube.com/watch?v=sea2K4AuPOk
